@@ -8,17 +8,18 @@ fn main() {
 
 	println!("First word: {}", words[number]);
         println!();
-
-	let mut guess = String::new();
+	
 	let mut g = ["str","str","str","str","str","str"];
 	
-	for i in 1..6
-	{
-		  io::stdin()
-                 	.read_line(&mut guess)
-                 	.expect("Failed to read line ");
+	for i in 1..6{
+		let mut guess = String::new();
 
-        	g[i] = guess.as_str();
+		io::stdin()
+               		.read_line(&mut guess)
+                 	.expect("Failed to read line ");
+	
+		let guess_str = guess.clone();
+        	g[i] = guess_str.as_str();
         	println!("First in array: {}", g[0]);
 
         	print!("|");
