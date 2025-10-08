@@ -5,6 +5,7 @@
 // letter -> decimal -> binary -> chunks of 6 bits -> b64
 use std::env; 
 use std::fs;
+
 const BASE64_CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 fn to_base64(input: &[u8]) -> String
@@ -73,23 +74,26 @@ fn to_base64(input: &[u8]) -> String
 
 
 }
-fn main() {
+fn main(){
     let args: Vec<String> = env::args().collect();
     let file_path = &args[1];
     
 
-    // The first argument is the path that was used to call the program.
-   // println!("My path is {}.", args[0]);
-
-
-   // println!("In file {file_path}");
-    
     let contents = fs::read(file_path)
         .expect("Should have been able to read the file");
-   // println!("With text:\n{String::from_utf8(contents)}");
 
     let output_string : String = to_base64(&contents);
-
-    println!("{}", output_string);
+    
+    let html_content = format!(
+        "<!DOCTYPE html>
+        <html>
+        <body>
+            <h1>Your Image</h1>
+            <img src=\"data:image/png;base64,{}\" alt=\"Converted image\">
+        </body>
+        </html>
+        ", output_string);
+     let _ = std::fs::write("cat.html",html_content); 
+    //let mut file = fs::File::create("cat.html");
+    //file.write_all(html_content.as_bytes());
 }
-
