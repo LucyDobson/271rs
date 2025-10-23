@@ -4,15 +4,20 @@ use colored::Colorize;
 
 fn main() {
 	let words: [&str;6] = ["acorn", "mouth", "siege", "ratio", "filly", "guide"];
-	let number = rand::rng().random_range(1..=6);
+	let number = rand::rng().random_range(0..=6);
 
-	println!("First word: {}", words[number]);
+
+        let secret = words[number];
+	//println!("First word: {}", secret);
         println!();
 	
 	let mut g = ["str".to_string(),"str".to_string(),"str".to_string(),"str".to_string(),"str".to_string(),"str".to_string()];
-	
-	for i in 1..6{
-		let mut guess = String::new();
+        print!("\x1B[2J");
+        let mut guess = String::new();
+        for i in 1..6{
+	    println!("Guess the word: ");	
+            
+                let mut guess = String::new();
 
 		io::stdin()
                		.read_line(&mut guess)
@@ -20,20 +25,45 @@ fn main() {
 	
 		let guess_str = guess.clone();
         	g[i] = guess_str;
-        	println!("First in array: {}", g[i].to_string().blue());
+        	//println!("First in array: {}", g[i].to_string().blue());
 		
-		println!("{} {} !", "it".green(), "works".blue().bold());
         	
-		print!("|");
+                //println!("Secret: {}", secret);
+                //println!("Guess: {}", guess);
 
-        	for c in guess.chars() {
-        	print!(" {} |" , c);
-        	}
-	}
+                println!();
 
-	for word in g.iter(){
-	println!("Array: {}", word);
-	
-	
+		//print!("|");
+
+                for (i, g_char)in guess.chars().enumerate(){
+        	    if let Some(s_char) = secret.chars().nth(i){
+
+                        if g_char == s_char{
+                            print!("{}", g_char.to_string().green());
+                        }   
+                        else if secret.contains(g_char){
+                            print!("{}", g_char.to_string().yellow());
+                        }
+                        else{
+                            print!("{}", g_char.to_string().red());
+                        }   
+                    }   
+
+                }
+                
+                if guess.to_string().trim() == secret.to_string(){
+                break;
+                }
+                
+                println!();
 	}
+        println!("The word was: {}", secret.blue());
+        if guess.to_string().trim() == secret.to_string(){
+            println!("{}","You win!".green());
+            }
+            else{
+                println!("{}", "You lose.".red());
+            }
+
+
 }
