@@ -10,6 +10,8 @@ fn h(m: &[u8]) -> Vec<u8> {
 
 // bit(h: bytes, i: int) -> int
 fn bit(h_val: &[u8], i: usize) -> u8 {
+    
+}
 
 // expmod(b:int,e:int,m:int) -> int
 pub fn expmod(b_val: &BigInt, e: &BigInt, m: &BigInt) -> BigInt {
