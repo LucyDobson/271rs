@@ -51,9 +51,7 @@ fn main() {
             println!("No .scm file found!");
             fs::write(".scm","").expect("Failed to make .scm file");
             
-//            let file_names: Vec<String> = inv();
-  //          let mut file_data : Vec<String> = Vec::new();
-          //FIXME this could go directly into a json! call? 
+           //FIXME this could go directly into a json! call? 
            // let mut latest_stuff: HashMap<String, String> = HashMap::new();
           
             println!("Files in Directory: ");
@@ -86,7 +84,13 @@ fn main() {
             //modified == current file
             
             //let patch = create_patch(&scm_content, latest_stuff);
-            
+            for file in file_names {
+                //let modified: String = commit_stuff[file];
+               
+                let contents = fs::read_to_string(&file)
+                    .expect("Should have been able to read the file");
+                latest_stuff.insert(file, contents);
+            }
             
 
             //read in .scm file and convert to json
