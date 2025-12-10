@@ -1,13 +1,15 @@
 use std::*;
 use std::fs;
 use serde_json::{json, Value};
+use std::collections::HashMap;
+use diffy::create_patch;
 
 fn inv() -> Vec<String> {
     let entries = fs::read_dir("./")
         .expect("Failed to read directory");
    
     let mut files: Vec<String> = Vec::new();
-   
+
     for entry in entries {
         let entry = entry.expect("Failed to read entry");
         let path = entry.path();
@@ -25,13 +27,13 @@ fn inv() -> Vec<String> {
     files
 }
 
-fn data() -> Vec<String> {
-    
-}
 
 fn main() {
     println!();
     
+    let mut latest_stuff: HashMap<String, String> = HashMap::new();
+    let file_names: Vec<String> = inv();
+    let mut file_data : Vec<String> = Vec::new();
     let args: Vec<String> = env::args().collect();
     dbg!(&args);
 
@@ -49,20 +51,48 @@ fn main() {
             println!("No .scm file found!");
             fs::write(".scm","").expect("Failed to make .scm file");
             
-            let file_names: Vec<String> = inv();
-            let mut file_data : Vec<String> = Vec::new();
+//            let file_names: Vec<String> = inv();
+  //          let mut file_data : Vec<String> = Vec::new();
+          //FIXME this could go directly into a json! call? 
+           // let mut latest_stuff: HashMap<String, String> = HashMap::new();
+          
             println!("Files in Directory: ");
             
             for file in file_names {
                 println!("{}", file);
-                let contents = fs::read_to_string(file)
+                let contents = fs::read_to_string(&file)
                     .expect("Should have been able to read the file");
-                file_data.push(contents.clone());
-               // println!("{}", contents);
+                latest_stuff.insert(file, contents);
+                
             }
+
+
+            let commit_stuff = json!({"init": latest_stuff, "diff": "{}"});
+            let json_stuff = json!({"latest": latest_stuff, "commit": commit_stuff});
+            //let json_init = json!({"commit": {"init": latest_stuff, "diff": "{}"});
+            let pretty_json: String = serde_json::to_string_pretty(&json_stuff).expect("String is not pretty");
+            println!("Pretty json : {}", pretty_json);
+            fs::write(".scm", pretty_json).expect("Can not write json")
         }
         else {
             println!(".scm file found! ");
+            let scm_content: String = fs::read_to_string(".scm").expect("Can't read file to string");
+            println!("scm: {}",scm_content);
+           // let scm_json: Value = serde_json::from_str(&scm_content);
+            let json_data : Value = serde_json::from_str("{\"field\": \"value\"}").expect("failed to convert to json");
+            println!("Json data = {}", json_data);
+
+            //original == scm_content
+            //modified == current file
+            
+            //let patch = create_patch(&scm_content, latest_stuff);
+            
+            
+
+            //read in .scm file and convert to json
+            //for each file in directory compare to .scm version
+            //diff the two verions
+            //append that output into "diff"
         }
 
     }
