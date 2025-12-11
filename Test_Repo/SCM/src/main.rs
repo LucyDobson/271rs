@@ -1,8 +1,12 @@
 use std::*;
 use std::fs;
+use std::env;
+use std::path::Path;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use diffy::create_patch;
+
+
 
 fn inv() -> Vec<String> {
     let entries = fs::read_dir("./")
@@ -33,15 +37,20 @@ fn main() {
     
     let mut latest_stuff: HashMap<String, String> = HashMap::new();
     let file_names: Vec<String> = inv();
-    let mut file_data : Vec<String> = Vec::new();
+    //let mut file_data : Vec<String> = Vec::new();
     let args: Vec<String> = env::args().collect();
     dbg!(&args);
 
     println!();
+    
+    if args.len() < 2 {
+        println!("Comands: help, commit, revert");
+        return;
+    }
 
     let input = args[1].trim().to_lowercase();
     
-    if input.trim() == "help".to_string(){
+    if input == "help".to_string(){
         println!("List of commands: \n  . commit \n  . revert");
     }
 
@@ -77,8 +86,27 @@ fn main() {
             let scm_content: String = fs::read_to_string(".scm").expect("Can't read file to string");
             println!("scm: {}",scm_content);
            // let scm_json: Value = serde_json::from_str(&scm_content);
-            let json_data : Value = serde_json::from_str("{\"field\": \"value\"}").expect("failed to convert to json");
-            println!("Json data = {}", json_data);
+            //let json_data : Value = serde_json::from_str("{\"field\": \"value\"}").expect("failed to convert to json");
+            let json_thingy: Value = 
+            match fs::read_to_string(".scm") {
+
+                Ok(json_content) => {
+                    match serde_json::from_str::<Value>(&json_content) {
+                        Ok(parsed) => parsed,
+                        Err(e) => {
+                            eprintln!("failed to parse:{}", e);
+                            return;
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Failed to read file: {}", e);
+                    return;
+                }
+            };
+
+
+
 
             //original == scm_content
             //modified == current file

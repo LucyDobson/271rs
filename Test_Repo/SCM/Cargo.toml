@@ -4,6 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-walkdir = "2.5.0"
 serde_json = { version = "1.0.145", features = ["preserve_order"] }
 diffy = "0.4.2"
