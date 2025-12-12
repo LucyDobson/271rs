@@ -30,10 +30,12 @@ fn inv() -> Vec<String> {
 
 fn main() {
     println!();
-    let mut latest_stuff: HashMap<String, String> = HashMap::new();
+    let mut latest_stuff: HashMap<String, String> = HashMap::new(); 
+    let mut diff_stuff: HashMap<String, String> = HashMap::new();
     let file_names: Vec<String> = inv();
     let args: Vec<String> = env::args().collect();
-    
+    let diff_global = "{}";
+
     dbg!(&args);
     println!();
     
@@ -58,7 +60,8 @@ fn main() {
                 println!("{}", file);
                 let contents = fs::read_to_string(&file)
                     .expect("Should have been able to read the file");
-                latest_stuff.insert(file, contents);
+                latest_stuff.insert(file.clone(), contents);
+                diff_stuff.insert(file.clone(),"[]".to_string());
             }
 
             let commit_stuff = json!({"init": latest_stuff, "diff": "{}"});
@@ -89,18 +92,29 @@ fn main() {
                 }
             };
 
-            //original == scm_content
-            //modified == current file
-            //file name = "file"
-            
-            //let patch = create_patch(&scm_content, latest_stuff);
             for file in file_names {
-                if(".scm"[file])
-                //let modified: String = commit_stuff[file];
-               // how do you find out 
                 let contents = fs::read_to_string(&file)
                     .expect("Should have been able to read the file");
-                latest_stuff.insert(file, contents);
+                let old_files = json_thingy["latest"][file.clone()].as_str().unwrap();
+               //println!("Old: {}", old_files); 
+               //println!("New: {}", contents.clone());
+               let mut all_diffs: Vec<String> = Vec::new(); 
+               all_diffs.push(json_thingy["commit"]["diff"][file.clone()].to_string());
+               println!("THIS IS ALL DIFFS -------------\n {}", all_diffs.len());
+               println!("0: ------------- \n {}", all_diffs[0]);
+               all_diffs.push("Papa".to_string());
+
+               println!("THIS IS ALL DIFFS -------------\n {}", all_diffs.len());
+               println!("1: ------------- \n {}", all_diffs[1]);
+               let diff = create_patch(old_files,contents.as_str());
+               let diff_global = diff.clone();
+               all_diffs.push(diff.to_string());
+               println!("2: ------------- \n {}", all_diffs[2]);
+               let diff = create_patch(old_files,contents.as_str());
+               println!("{}", diff_global);
+                let mut stuffing = fs::read_to_string(&file).unwrap_or_default();
+                stuffing.push_str ("\nX");
+                fs::write(file, stuffing).expect("Failed to write file");
             }
             
 
