@@ -100,22 +100,21 @@ fn main() {
                //println!("New: {}", contents.clone());
                let mut all_diffs: Vec<String> = Vec::new(); 
                all_diffs.push(json_thingy["commit"]["diff"][file.clone()].to_string());
-               println!("THIS IS ALL DIFFS:\n {}", all_diffs.len());
-               println!("0: \n {}", all_diffs[0]);
-               all_diffs.push("Papa".to_string());
-
                println!("LENGTH OF ALL DIFFS \n {}", all_diffs.len());
-               //let diff = create_patch(old_files,contents.as_str());
-               //all_diffs.push(diff.to_string());
 
                 let mut applied_diffs = &json_thingy["commit"]["init"][file.clone()].to_string();
-                for change in all_diffs {
+                for change in &all_diffs{
                     let patch = Patch::from_str(change.as_str()).unwrap();
                //     let mut temporary =  &serde_json::Value::String(apply(applied_diffs.as_str().unwrap_or_default(), &patch).unwrap());
                     let applied_diffs = apply(applied_diffs.as_str(),&patch).unwrap();
                 }
                 println!("APPLIED DIFFS PRINT:\n{}", applied_diffs);
                 let final_diff = create_patch(applied_diffs.as_str(),contents.as_str());
+                all_diffs.push(final_diff.to_string());
+                (json_thingy["commit"]["diff"][file]) = all_diffs;// THIS SPOT IS BROKEN
+                
+                let patch_test = apply(applied_diffs.as_str(),&final_diff);
+                println!("-------------------------------\nPatch Test: {}", patch_test.unwrap());
                 let mut stuffing = fs::read_to_string(&file).unwrap_or_default();
                 println!("This is diff: {}", final_diff);
                 stuffing.push_str ("X\n");
