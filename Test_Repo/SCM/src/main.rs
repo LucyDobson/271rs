@@ -3,7 +3,7 @@ use std::fs;
 use std::env;
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use diffy::create_patch;
+use diffy::{create_patch, apply, Patch};
 
 fn inv() -> Vec<String> {
     let entries = fs::read_dir("./")
@@ -100,20 +100,25 @@ fn main() {
                //println!("New: {}", contents.clone());
                let mut all_diffs: Vec<String> = Vec::new(); 
                all_diffs.push(json_thingy["commit"]["diff"][file.clone()].to_string());
-               println!("THIS IS ALL DIFFS -------------\n {}", all_diffs.len());
-               println!("0: ------------- \n {}", all_diffs[0]);
+               println!("THIS IS ALL DIFFS:\n {}", all_diffs.len());
+               println!("0: \n {}", all_diffs[0]);
                all_diffs.push("Papa".to_string());
 
-               println!("THIS IS ALL DIFFS -------------\n {}", all_diffs.len());
-               println!("1: ------------- \n {}", all_diffs[1]);
-               let diff = create_patch(old_files,contents.as_str());
-               let diff_global = diff.clone();
-               all_diffs.push(diff.to_string());
-               println!("2: ------------- \n {}", all_diffs[2]);
-               let diff = create_patch(old_files,contents.as_str());
-               println!("{}", diff_global);
+               println!("LENGTH OF ALL DIFFS \n {}", all_diffs.len());
+               //let diff = create_patch(old_files,contents.as_str());
+               //all_diffs.push(diff.to_string());
+
+                let mut applied_diffs = &json_thingy["commit"]["init"][file.clone()].to_string();
+                for change in all_diffs {
+                    let patch = Patch::from_str(change.as_str()).unwrap();
+               //     let mut temporary =  &serde_json::Value::String(apply(applied_diffs.as_str().unwrap_or_default(), &patch).unwrap());
+                    let applied_diffs = apply(applied_diffs.as_str(),&patch).unwrap();
+                }
+                println!("APPLIED DIFFS PRINT:\n{}", applied_diffs);
+                let final_diff = create_patch(applied_diffs.as_str(),contents.as_str());
                 let mut stuffing = fs::read_to_string(&file).unwrap_or_default();
-                stuffing.push_str ("\nX");
+                println!("This is diff: {}", final_diff);
+                stuffing.push_str ("X\n");
                 fs::write(file, stuffing).expect("Failed to write file");
             }
             
